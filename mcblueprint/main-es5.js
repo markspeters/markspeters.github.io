@@ -991,7 +991,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             return mapping;
           }
 
-          var newMapping = this._mappings[text] = new ColorMapping(text, randomColor());
+          var savedColor = localStorage.getItem("colorPref-".concat(text));
+          var newMapping = this._mappings[text] = new ColorMapping(text, savedColor || randomColor());
           this.events.emit(this);
           return newMapping;
         }
@@ -1025,10 +1026,19 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         this.name = name;
         this._color = _color;
         this.events = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
-        console.log('Mapping created', this);
+        this.writePref();
       }
 
       _createClass(ColorMapping, [{
+        key: "writePref",
+        value: function writePref() {
+          try {
+            localStorage.setItem("colorPref-".concat(this.name), this._color);
+          } catch (e) {
+            console.warn('Could not write color preference', e);
+          }
+        }
+      }, {
         key: "changes",
         get: function get() {
           return this.events;
@@ -1040,6 +1050,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
         },
         set: function set(color) {
           this._color = color;
+          this.writePref();
           this.events.emit(this);
         }
       }]);

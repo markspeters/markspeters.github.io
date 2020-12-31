@@ -491,7 +491,8 @@ class ColorMap {
         if (mapping) {
             return mapping;
         }
-        const newMapping = this._mappings[text] = new ColorMapping(text, randomColor());
+        const savedColor = localStorage.getItem(`colorPref-${text}`);
+        const newMapping = this._mappings[text] = new ColorMapping(text, savedColor || randomColor());
         this.events.emit(this);
         return newMapping;
     }
@@ -510,7 +511,7 @@ class ColorMapping {
         this.name = name;
         this._color = _color;
         this.events = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
-        console.log('Mapping created', this);
+        this.writePref();
     }
     get changes() {
         return this.events;
@@ -520,7 +521,16 @@ class ColorMapping {
     }
     set color(color) {
         this._color = color;
+        this.writePref();
         this.events.emit(this);
+    }
+    writePref() {
+        try {
+            localStorage.setItem(`colorPref-${this.name}`, this._color);
+        }
+        catch (e) {
+            console.warn('Could not write color preference', e);
+        }
     }
 }
 
